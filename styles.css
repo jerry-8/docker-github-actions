@@ -1,0 +1,33 @@
+.chartBox {
+  width: 400px;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.relative-center {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.text-center{
+  text-align: center;
+}
+
+p {
+  font-size: 1.5rem;
+}

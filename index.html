@@ -1,11 +1,135 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>My Cool Website</title>
+	<head>
+		<link rel="stylesheet" href="styles.css">
+		<title>The jQuery Example</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js"></script>
+		<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+		<script type = "text/javascript">
+		
+			var iotchart1, iotchart2;
+			var data_temp = {
+				value: 20,
+				max: 50,
+				label: "Temperature"
+			};
+			var data_humid = {
+				value: 50,
+				max: 100,
+				label: "Humidity"
+			};
+
+			var options1 = {
+				type: 'doughnut',
+			  data: {
+                labels: [data_temp.label],
+                datasets: [{
+                    data: [data_temp.value, data_temp.max - data_temp.value],
+                    backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                    borderWidth: 0,
+                }]
+            },
+			  options: {
+				rotation: 270, // start angle in degrees
+				circumference: 180, // sweep angle in degrees
+				maintainAspectRatio: true,
+			  }
+			}
+			var options2 = {
+				type: 'doughnut',
+			  data: {
+                labels: [data_humid.label],
+                datasets: [{
+                    data: [data_humid.value, data_humid.max - data_humid.value],
+                    backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                    borderWidth: 0
+                }]
+            },
+			  options: {
+				rotation: 270, // start angle in degrees
+				circumference: 180, // sweep angle in degrees
+				maintainAspectRatio: true,
+			  }
+			}
+
+			
+			window.onload = function () {
+				var myCanvas1 = document.getElementById('chartJSContainer1');
+				var ctx1 = myCanvas1.getContext('2d');
+				iotchart1 = new Chart(ctx1, options1);
+				var myCanvas2 = document.getElementById('chartJSContainer2');
+				var ctx2 = myCanvas2.getContext('2d');				
+				iotchart2 = new Chart(ctx2, options2);
+			}
+			
+			
+			//const mqtt = require('mqtt')
+			console.log(mqtt);
+			const url = 'ws://test.mosquitto.org:8080'
+			//const url = 'ws://broker.hivemq.com:8000'
+			const mqtt_options = {
+  // Clean session
+  clean: true,
+  connectTimeout: 4000,
+  // Authentication
+  //clientId: 'emqx_test',
+  //username: 'emqx_test',
+  //password: 'emqx_test',
+}
+const client  = mqtt.connect(url, mqtt_options)
+client.on('connect', function () {
+  console.log('Connected')
+  // Subscribe to a topic
+  client.subscribe('iot/student_ID', function (err) {
+    if (!err) {
+      // Publish a message to a topic
+      //client.publish('test', 'Hello mqtt')
+	  console.log("sub error");
+    }
+  })
+})
+
+// Receive messages
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString());
+  //client.end()
+  const obj = JSON.parse(message);
+  iotchart1.data.datasets[0].data = [obj.TEMP, 50 - obj.TEMP];
+  iotchart2.data.datasets[0].data = [obj.HUM, 100 - obj.HUM];
+  iotchart1.update();
+  iotchart2.update();
+  $("#chart1text").text(obj.TEMP+"C");
+  $("#chart2text").text(obj.HUM+"%");
+  
+})
+		</script>
    </head>
+	
    <body>
-      <h1>Welcome to my website! ⭐️</h1>
-      <p>How was your day? 🎉</p>
-      <a href="./about">Read the about page</a>
+      <h1>Hello</h1>
+	  
+	  
+	  <div class="relative chartBox">
+  <canvas id="chartJSContainer1"></canvas>      
+  <div class="relative-center text-center">
+    <p id="chart1text">Some text</p>
+  </div>
+    <canvas id="chartJSContainer2"></canvas>      
+  <div class="relative-center text-center">
+    <p id="chart2text">Some text</p>
+  </div>
+</div>
+	  
+	  <!--
+	  <div class="chartBox">
+	  
+		
+	<canvas id="chartJSContainer1"></canvas>
+	<canvas id="chartJSContainer2"></canvas>
+	</div>
+	-->
    </body>
+</html>
 </html>
